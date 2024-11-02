@@ -1,0 +1,270 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    color: #333;
+
+    background-color: #f9f9f9;
+}
+
+header, footer {
+    background-color: #007bff; 
+    color: white; 
+    text-align: center; 
+    padding: 15px 0; 
+}
+
+footer {
+    margin-top: auto; 
+}
+
+main {
+    height: 100%;
+    display: flex;
+    justify-content: center; 
+    align-items: center;   
+    margin: 0;
+    background-color: #f0f2f5;
+}
+
+.container {
+    max-width: 500px; 
+    width: 90%; 
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin: 0 auto; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+    text-align: left; 
+}
+
+header h1 {
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input, select, button, textarea {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    width: 100%;
+    transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 12px 20px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    
+}
+
+#expenses-header {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#expenses-list {
+    list-style-type: none;
+    width: 100%;
+    max-width: 600px;
+    padding: 0;
+    margin: auto;
+    
+}
+
+.expense-item {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.expense-item strong {
+    font-size: 18px;
+    color: #333;
+}
+
+.expense-item span {
+    font-size: 14px;
+    color: #777;
+    margin-top: 5px;
+}
+
+#add-expense-btn {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: auto;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.2s;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#add-expense-btn:hover {
+    background-color: #0056b3;
+}
+
+#add-expense-btn:active {
+    transform: translateY(1px);
+}
+
+
+#backButton {
+    display: inline-block;
+    padding: 8px 16px; 
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px; 
+    font-size: 14px; 
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+#backButton:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px); 
+}
+
+
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+        width: 100%;
+    }
+
+    header h1 {
+        font-size: 22px;
+        margin: 0 10px;
+    }
+
+    form {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    input, select, button, textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    #expenses-header {
+        font-size: 22px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        padding: 0 10px;
+    }
+
+    .expense-item {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    #add-expense-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    #backButton {
+        padding: 6px 12px;
+        font-size: 12px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    input, select, button, textarea {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    #expenses-header {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    #add-expense-btn,
+    #backButton {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

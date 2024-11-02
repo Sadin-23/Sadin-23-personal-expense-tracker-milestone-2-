@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Expenses</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<%- include('partials/header') %> 
+<h1 id="expenses-header">Expenses for <%= user.name %></h1>
+  <ul id="expenses-list">
+    <% user.expenses.forEach(expense => { %>
+      <li class="expense-item">
+        <strong><%= expense.description %></strong>  <%= expense.amount %> <%= expense.currency %>
+        <br>Date: <%= expense.date %> | Paid: <%= expense.isPaid ? 'Yes' : 'No' %>
+      </li>
+    <% }) %>
+  </ul>
+  <%- include('partials/footer') %> 
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Expense</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+
+    <div class="container">
+        <h2>Add a New Expense</h2>
+        <form action="/add-expense" method="POST">
+            <label>Description: <input type="text" name="description" required></label><br>
+            <label>Amount: <input type="number" name="amount" required></label><br>
+            <label>Currency:
+              <select name="currency">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="POUND">POUND</option>
+              </select>
+          </label><br>
+            <label>Payment Method:
+                <select name="paymentMethod">
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+            </label><br>
+            <label>Is Income? <input type="checkbox" name="isIncoming" value="yes"></label><br>
+            <label>Category: <input type="text" name="category"></label><br>
+            <label>Tags: <input type="text" name="tags"></label><br>
+            <label>Paid? <input type="checkbox" name="isPaid" value="yes"></label><br>
+            <button type="submit">Add Expense</button>
+        </form>
+        <a id="backButton" href="/">Back to Expenses</a>
+    </div>
+
+    <%- include('partials/footer') %> 
+</body>
+</html>
