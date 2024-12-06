@@ -1,40 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add Expense</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+
     <%- include('partials/header') %> 
 
     <div class="container">
-        <h2>Add a New Expense</h2>
-        <form action="/add-expense" method="POST">
-            <label>Description: <input type="text" name="description" required></label><br>
-            <label>Amount: <input type="number" name="amount" required></label><br>
-            <label>Currency:
-              <select name="currency">
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="POUND">POUND</option>
-              </select>
-          </label><br>
-            <label>Payment Method:
-                <select name="paymentMethod">
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                </select>
-            </label><br>
-            <label>Is Income? <input type="checkbox" name="isIncoming" value="yes"></label><br>
-            <label>Category: <input type="text" name="category"></label><br>
-            <label>Tags: <input type="text" name="tags"></label><br>
-            <label>Paid? <input type="checkbox" name="isPaid" value="yes"></label><br>
-            <button type="submit">Add Expense</button>
-        </form>
-        <a id="backButton" href="/">Back to Expenses</a>
+        <h1>Voeg een Nieuwe Uitgave Toe</h1>
+
+<form action="/add-expense" method="POST">
+  <label for="description">Beschrijving:</label>
+  <input type="text" id="description" name="description" required />
+
+  <label for="amount">Bedrag:</label>
+  <input type="number" id="amount" name="amount" step="0.01" required />
+
+  <label for="currency">Valuta:</label>
+  <select id="currency" name="currency">
+    <option value="EUR">EUR</option>
+    <option value="USD">USD</option>
+  </select>
+
+  <label for="paymentMethod">Betaalmethode:</label>
+  <select id="paymentMethod" name="paymentMethod">
+    <option value="Credit Card">Creditcard</option>
+    <option value="Bank Transfer">Bankoverschrijving</option>
+    <option value="Cash">Contant</option>
+    <option value="PayPal">PayPal</option>
+  </select>
+
+  <label for="category">Categorie:</label>
+  <select id="category" name="category" multiple>
+    <option value="food">Eten</option>
+    <option value="drinks">Drinken</option>
+    <option value="rent">Huur</option>
+    <option value="transport">Transport</option>
+    <option value="utilities">Nutsvoorzieningen</option>
+    <option value="entertainment">Entertainment</option>
+    <option value="healthcare">Gezondheidszorg</option>
+    <option value="education">Onderwijs</option>
+    <option value="shopping">Winkelen</option>
+    <option value="vacation">Vakantie</option>
+    <option value="subscriptions">Abonnementen</option>
+    <option value="insurance">Verzekeringen</option>
+    <option value="gifts">Cadeaus</option>
+    <option value="homeImprovement">Woningverbetering</option>
+    <option value="charity">Liefdadigheid</option>
+    <option value="investments">Investeringen</option>
+    <option value="savings">Sparen</option>
+    <option value="personalCare">Persoonlijke zorg</option>
+    <option value="pets">Huisdieren</option>
+    <option value="taxes">Belastingen</option>
+  </select>
+
+
+  <label for="tags">Tags (komma gescheiden):</label>
+  <input type="text" id="tags" name="tags" />
+
+  <label>
+    Is inkomend?
+    <input type="radio" name="isIncoming" value="yes" /> Ja
+    <input type="radio" name="isIncoming" value="no" checked /> Nee
+  </label>
+
+  <label>
+    Is betaald?
+    <input type="radio" name="isPaid" value="yes" /> Ja
+    <input type="radio" name="isPaid" value="no" checked /> Nee
+  </label>
+
+  <button type="submit" class="btn">Opslaan</button>
+</form>
     </div>
 
     <%- include('partials/footer') %> 
-</body>
-</html>
+

@@ -1,19 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Expenses</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+
 <%- include('partials/header') %> 
 <h1 id="expenses-header">Expenses for <%= user.name %></h1>
-  <ul id="expenses-list">
-    <% user.expenses.forEach(expense => { %>
-      <li class="expense-item">
-        <strong><%= expense.description %></strong>  <%= expense.amount %> <%= expense.currency %>
-        <br>Date: <%= expense.date %> | Paid: <%= expense.isPaid ? 'Yes' : 'No' %>
-      </li>
-    <% }) %>
-  </ul>
+
+<form id="expenses-list" method="GET" action="/expenses">
+  <input type="text" name="search" placeholder="Zoek op beschrijving" />
+  <select name="category">
+    <option value="">Alle Categorieën</option>
+    <option value="food">Eten</option>
+    <option value="drinks">Drinken</option>
+    <option value="huur">Huur</option>
+    <option value="transport">Transport</option>
+  </select>
+  <button type="submit">Filter</button>
+</form>
+
+
+<ul id="expenses-list">
+  <% expenses.forEach(expense => { %>
+    <li>
+      <strong><%= expense.description %></strong> - <%= expense.amount %> <%= expense.currency %>
+      <a href="/edit-expense/<%= expense._id %>">Bewerk</a>
+      <form action="/delete-expense/<%= expense._id %>" method="POST" style="display:inline;">
+        <button type="submit">Verwijder</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>
+
+
   <%- include('partials/footer') %> 
-</html>

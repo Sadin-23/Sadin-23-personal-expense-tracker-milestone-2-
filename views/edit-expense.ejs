@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+
+<div class="container">
+<h1>Bewerk Uitgave</h1>
+
+<form action="/edit-expense/<%= expense._id %>" method="POST">
+  <label for="description">Beschrijving:</label>
+  <input type="text" id="description" name="description" value="<%= expense.description %>" required />
+
+  <label for="amount">Bedrag:</label>
+  <input type="number" id="amount" name="amount" step="0.01" value="<%= expense.amount %>" required />
+
+  <label for="currency">Valuta:</label>
+  <select id="currency" name="currency">
+    <option value="EUR" <%= expense.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+    <option value="USD" <%= expense.currency === 'USD' ? 'selected' : '' %>>USD</option>
+  </select>
+
+  <label for="category">Categorie:</label>
+  <select id="category" name="category">
+    <option value="food" <%= expense.category === 'food' ? 'selected' : '' %>>Eten</option>
+    <option value="drinks" <%= expense.category === 'drinks' ? 'selected' : '' %>>Drinken</option>
+    <option value="huur" <%= expense.category === 'huur' ? 'selected' : '' %>>Huur</option>
+    <option value="transport" <%= expense.category === 'transport' ? 'selected' : '' %>>Transport</option>
+  </select>
+
+  <label>
+    Is inkomend?
+    <input type="radio" name="isIncoming" value="yes" <%= expense.isIncoming ? 'checked' : '' %> /> Ja
+    <input type="radio" name="isIncoming" value="no" <%= !expense.isIncoming ? 'checked' : '' %> /> Nee
+  </label>
+
+  <label>
+    Is betaald?
+    <input type="radio" name="isPaid" value="yes" <%= expense.isPaid ? 'checked' : '' %> /> Ja
+    <input type="radio" name="isPaid" value="no" <%= !expense.isPaid ? 'checked' : '' %> /> Nee
+  </label>
+
+  <button type="submit" class="btn">Opslaan</button>
+</form>
+</div>
+<%- include('partials/footer') %>
