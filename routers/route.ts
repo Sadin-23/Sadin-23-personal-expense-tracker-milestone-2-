@@ -1,4 +1,4 @@
-import express, {Response, Request} from 'express';
+import express from 'express';
 import { getCurrentUser, getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection } from '../database';
 import { Expense, PaymentMethod } from '../types';
 import { ObjectId } from 'mongodb';

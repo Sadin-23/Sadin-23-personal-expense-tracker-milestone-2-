@@ -35,33 +35,28 @@ export async function getCurrentUser(): Promise<User> {
 }
 
 export async function addExpenseForUser(userId: ObjectId, expense: Expense) {
-  // Voeg de uitgave toe aan de database
+  
   const result = await expenseCollection.insertOne(expense);
 
-  // Update de lijst van uitgaven van de gebruiker
   await userCollection.updateOne(
     { _id: userId },
     { $push: { expenses: result.insertedId } }
   );
 
-  // Update het budget van de gebruiker door het bedrag van de uitgave af te trekken
   const user = await userCollection.findOne({ _id: userId });
   if (user) {
     const newMonthlyLimit = user.budget.monthlyLimit - expense.amount;
 
-    // Update het budget in de database
     await userCollection.updateOne(
       { _id: userId },
       { $set: { "budget.monthlyLimit": newMonthlyLimit } }
     );
 
-    // Check of het budget bijna overschreden wordt
     if (user.budget.isActive) {
       const remainingBudget = newMonthlyLimit;
       const thresholdAmount = user.budget.monthlyLimit * user.budget.notificationThreshold;
 
       if (remainingBudget <= thresholdAmount) {
-        // Hier zou je bijvoorbeeld een notificatie kunnen sturen naar de gebruiker
         console.log("Budget warning: The user is about to exceed their budget.");
       }
     }
