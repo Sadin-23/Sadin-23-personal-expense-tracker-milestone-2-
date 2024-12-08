@@ -1,5 +1,5 @@
 import express, {Response, Request} from 'express';
-import { getCurrentUser, getExpenses, addExpenseForUser, addExpense, getFilteredExpenses, updateExpense, deleteExpense } from '../database';
+import { getCurrentUser, getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection } from '../database';
 import { Expense, PaymentMethod } from '../types';
 import { ObjectId } from 'mongodb';
 
@@ -62,12 +62,12 @@ export function createRouter() {
         res.redirect('/expenses');
   });
 
-  router.get('/edit-expense/:id', async (req: Request<{ id: string }>, res: Response) => {
+  router.get('/edit-expense/:id', async (req, res) => {
     try {
       const expenseId = req.params.id;
   
       if (!ObjectId.isValid(expenseId)) {
-        res.status(400).send('Ongeldig ID-formaat');
+        res.status(400).send('Unvalid ID-format');
         return;
       }
   
@@ -77,14 +77,14 @@ export function createRouter() {
       const expense = expenses.find((e) => e._id.equals(expenseObjectId));
   
       if (!expense) {
-        res.status(404).send('Uitgave niet gevonden');
+        res.status(404).send('Expense not found');
         return;
       }
   
       res.render('edit-expense', { expense });
     } catch (error) {
-      console.error('Fout bij ophalen van uitgave:', error);
-      res.status(500).send('Er is iets misgegaan.');
+      console.error('Error retrieving expense:', error);
+      res.status(500).send('Something went wrong.');
     }
   });
   

@@ -48,18 +48,32 @@ export async function addExpenseForUser(userId: ObjectId, expense: Expense) {
   const user = await userCollection.findOne({ _id: userId });
   if (user) {
     const newMonthlyLimit = user.budget.monthlyLimit - expense.amount;
+
+    // Update het budget in de database
     await userCollection.updateOne(
       { _id: userId },
       { $set: { "budget.monthlyLimit": newMonthlyLimit } }
     );
+
+    // Check of het budget bijna overschreden wordt
+    if (user.budget.isActive) {
+      const remainingBudget = newMonthlyLimit;
+      const thresholdAmount = user.budget.monthlyLimit * user.budget.notificationThreshold;
+
+      if (remainingBudget <= thresholdAmount) {
+        // Hier zou je bijvoorbeeld een notificatie kunnen sturen naar de gebruiker
+        console.log("Budget warning: The user is about to exceed their budget.");
+      }
+    }
   }
 }
+
 
 
 // Haal uitgaven op voor een gebruiker
 export async function getExpenses(userId: ObjectId): Promise<Expense[]> {
   const user = await userCollection.findOne({ _id: userId });
-  if (!user) throw new Error("Gebruiker niet gevonden.");
+  if (!user) throw new Error("User not found.");
   return await expenseCollection
     .find({ _id: { $in: user.expenses } })
     .toArray();
@@ -103,6 +117,21 @@ export async function deleteExpense(expenseId: ObjectId): Promise<void> {
 }
 
 
+export async function checkBudgetNotification(userId: ObjectId) {
+  const user = await userCollection.findOne({ _id: userId });
+
+  if (!user || !user.budget.isActive) return;
+
+  const { monthlyLimit, notificationThreshold } = user.budget;
+
+  const expenses = await expenseCollection.find({ _id: { $in: user.expenses } }).toArray();
+  const totalSpent = expenses.reduce((total, expense) => total + expense.amount, 0);
+
+  if (totalSpent >= monthlyLimit * notificationThreshold) {
+    // Stuur een notificatie naar de gebruiker
+    console.log(`User ${userId} has reached ${Math.round((totalSpent / monthlyLimit) * 100)}% of their budget.`);
+  }
+}
 
 
 async function exit() {
