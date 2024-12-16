@@ -11,7 +11,7 @@ export function loginRouter() {
     });
 
     router.post("/login", async (req, res) => {
-        const username: string = req.body.email;
+        const username: string = req.body.username;
         const password: string = req.body.password;
         try {
             let user: User = await login(username, password);

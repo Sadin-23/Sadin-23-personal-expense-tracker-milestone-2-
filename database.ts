@@ -3,6 +3,8 @@ import { MongoClient, Collection, ObjectId } from "mongodb";
 import bcrypt from "bcrypt";
 import dotenv from 'dotenv';
 
+
+
 const saltRounds : number = 10;
 
 dotenv.config();
@@ -15,7 +17,7 @@ export const expenseCollection: Collection<Expense> = client.db("expenseTracker"
 
 
 export async function getUser(user: User) {
-  return await userCollection.findOne({username: user.name});
+  return await userCollection.findOne({username: user.username});
 }
 
 export async function getUserByUsername(username: string): Promise<User | null> {
@@ -25,7 +27,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
 }
 
 // Functie om een gebruiker te registreren
-export async function createUser(username: string, password: string, email: string): Promise<User> {
+export async function createUser(name: string, password: string, username: string): Promise<User> {
   const hashedPassword = await bcrypt.hash(password, 10); // Wachtwoord hashen
 
   const newUser: User = {
@@ -52,12 +54,6 @@ export async function createUser(username: string, password: string, email: stri
 export async function checkPassword(storedPassword: string, enteredPassword: string): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, storedPassword);
 }
-
-
-
-
-
-
 
 
 

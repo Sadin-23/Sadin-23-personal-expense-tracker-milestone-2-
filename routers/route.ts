@@ -1,6 +1,6 @@
 import express from 'express';
-import { createUser,getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection, getUser } from '../database';
-import { Expense, PaymentMethod } from '../types';
+import { createUser,getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection, getUser, getUserByUsername } from '../database';
+import { Expense, PaymentMethod, User } from '../types';
 import { ObjectId } from 'mongodb';
 
 export function createRouter() {
@@ -12,11 +12,26 @@ export function createRouter() {
   
 
   router.get('/add-expense', async (req, res) => {
-    const user = await getCurrentUser();
-    res.render('add-expense', {user});
+    const userSession = req.session.user;
+  
+    // If user is not logged in, redirect to login
+    if (!userSession) {
+      return res.redirect('/login');
+    }
+  
+    try {
+      const user = await getUserByUsername(userSession.username);
+      res.render('add-expense', { user });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.redirect('/login');
+    }
   });
 
   router.get('/expenses', async (req, res) => {
+    if (!req.session.user) {
+      return res.redirect('/login');
+    }
     const filters = {
         search: req.query.search || '',
         category: req.query.category || '',
@@ -24,19 +39,34 @@ export function createRouter() {
     };
 
     const expenses = await getFilteredExpenses(filters);
-    const user = await getCurrentUser();
+    const user = req.session.user;
     res.render('expenses', { expenses, user });
 });
 
 
 
-  router.post('/add-expense', async (req, res) => {
+router.post('/add-expense', async (req, res) => {
+  const userSession = req.session.user;
+
+  // Check if the user is logged in
+  if (!userSession) {
+    return res.redirect('/login');  // Redirect to login if the user is not logged in
+  }
+
+  try {
     const { description, amount, currency, paymentMethod, category, tags, isIncoming, isPaid } = req.body;
 
-    const user = await getCurrentUser();
+    // Fetch the user from the database using the session username
+    const user = await getUserByUsername(userSession.username);
+
+    // If no user is found, redirect to login
+    if (!user) {
+      return res.redirect('/login');
+    }
 
     let paymentMethodDetails: PaymentMethod = { method: paymentMethod };
 
+    // Handle different payment methods
     if (paymentMethod === 'Credit Card') {
       paymentMethodDetails.cardDetails = {
         lastFourDigits: req.body.lastFourDigits,
@@ -46,6 +76,7 @@ export function createRouter() {
       paymentMethodDetails.bankAccountNumber = req.body.bankAccountNumber;
     }
 
+    // Construct the new expense object
     const expense: Expense = {
       _id: new ObjectId(),
       description,
@@ -59,10 +90,22 @@ export function createRouter() {
       isPaid: isPaid === 'true',
     };
 
+    // Add the expense to the database
     await addExpense(expense);
-        user.expenses.push(expense._id);
-        res.redirect('/expenses');
-  });
+
+    // Update the user's expenses
+    user.expenses.push(expense._id);
+    await userCollection.updateOne({ _id: user._id }, { $push: { expenses: expense._id } });
+
+    // Redirect to the expenses page after successful addition
+    res.redirect('/expenses');
+  } catch (error) {
+    console.error('Error adding expense:', error);
+    res.status(500).send('Error adding expense. Please try again later.');
+  }
+});
+
+
 
   router.get('/edit-expense/:id', async (req, res) => {
     try {
