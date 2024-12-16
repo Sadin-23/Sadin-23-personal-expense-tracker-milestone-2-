@@ -4,7 +4,9 @@ export interface User {
     id: number;
     _id: ObjectId;
     name: string;
-    email: string;
+    username: string;
+    password?: string;
+    role: "ADMIN" | "USER";
     expenses: ObjectId[];
     budget: Budget;
   }
@@ -38,5 +40,8 @@ export interface User {
     isActive: boolean;
   }
   
-  
+  export interface FlashMessage {
+    type: "error" | "success" | "info"
+    message: string;
+}
   

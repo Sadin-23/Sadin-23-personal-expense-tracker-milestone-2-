@@ -1,67 +1,110 @@
 import { User, Expense } from './types';
 import { MongoClient, Collection, ObjectId } from "mongodb";
+import bcrypt from "bcrypt";
+import dotenv from 'dotenv';
 
-const uri = "mongodb+srv://Sadin:Neupane_2003@cluster23.lw1r3ry.mongodb.net/";
-const client = new MongoClient(uri);
+const saltRounds : number = 10;
+
+dotenv.config();
+
+export const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
+const client = new MongoClient(MONGODB_URI);
 
 export const userCollection: Collection<User> = client.db("expenseTracker").collection<User>("users");
 export const expenseCollection: Collection<Expense> = client.db("expenseTracker").collection<Expense>("expenses");
 
 
-export async function getUsers(): Promise<User[]> {
-  return await userCollection.find().toArray();
+export async function getUser(user: User) {
+  return await userCollection.findOne({username: user.name});
 }
 
-export async function getCurrentUser(): Promise<User> {
-  let user = await userCollection.findOne({ name: "Sadin Neupane" });
-
-  if (!user) {
-    const newUser: User = {
-      id: 1,
-      _id: new ObjectId(),
-      name: "Sadin Neupane",
-      email: "sadin.neupane@student.ap.be",
-      expenses: [],
-      budget: {
-        monthlyLimit: 1000,
-        notificationThreshold: 0.9,
-        isActive: true,
-      },
-    };
-    await userCollection.insertOne(newUser);
-    return newUser;
-  }
+export async function getUserByUsername(username: string): Promise<User | null> {
+  const user = await userCollection.findOne({ username });
+  if (!user) throw new Error(`User with username ${username} not found.`);
   return user;
 }
 
+// Functie om een gebruiker te registreren
+export async function createUser(username: string, password: string, email: string): Promise<User> {
+  const hashedPassword = await bcrypt.hash(password, 10); // Wachtwoord hashen
+
+  const newUser: User = {
+    id: Math.floor(Math.random() * 10000),
+    _id: new ObjectId(),
+    name: username, 
+    username,
+    password: hashedPassword,
+    role: "USER", 
+    expenses: [], 
+    budget: {
+      monthlyLimit: 1000, 
+      notificationThreshold: 0.9, 
+      isActive: true,
+    },
+  };
+
+  await userCollection.insertOne(newUser); 
+  return newUser; 
+}
+
+
+// Functie om wachtwoord te controleren bij login
+export async function checkPassword(storedPassword: string, enteredPassword: string): Promise<boolean> {
+  return await bcrypt.compare(enteredPassword, storedPassword);
+}
+
+
+
+
+
+
+
+
+
 export async function addExpenseForUser(userId: ObjectId, expense: Expense) {
-  
-  const result = await expenseCollection.insertOne(expense);
+  const session = client.startSession();
 
-  await userCollection.updateOne(
-    { _id: userId },
-    { $push: { expenses: result.insertedId } }
-  );
+  try {
+    session.startTransaction();
 
-  const user = await userCollection.findOne({ _id: userId });
-  if (user) {
-    const newMonthlyLimit = user.budget.monthlyLimit - expense.amount;
+    // Voeg de uitgave toe aan de uitgaven collectie
+    const result = await expenseCollection.insertOne(expense, { session });
 
+    // Voeg de uitgave toe aan de gebruiker
     await userCollection.updateOne(
       { _id: userId },
-      { $set: { "budget.monthlyLimit": newMonthlyLimit } }
+      { $push: { expenses: result.insertedId } },
+      { session }
     );
 
-    if (user.budget.isActive) {
-      const remainingBudget = newMonthlyLimit;
-      const thresholdAmount = user.budget.monthlyLimit * user.budget.notificationThreshold;
+    // Bereken het nieuwe maandbudget
+    const user = await userCollection.findOne({ _id: userId });
+    if (user) {
+      const newMonthlyLimit = user.budget.monthlyLimit - expense.amount;
 
-      if (remainingBudget <= thresholdAmount) {
+      // Update het budget
+      await userCollection.updateOne(
+        { _id: userId },
+        { $set: { "budget.monthlyLimit": newMonthlyLimit } },
+        { session }
+      );
+
+      // Controleer of notificatie nodig is
+      if (user.budget.isActive && newMonthlyLimit <= user.budget.monthlyLimit * user.budget.notificationThreshold) {
         console.log("Budget warning: The user is about to exceed their budget.");
       }
     }
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    console.error('Error adding expense for user:', error);
+  } finally {
+    session.endSession();
   }
 }
+
+
 
 
 
@@ -128,6 +171,46 @@ export async function checkBudgetNotification(userId: ObjectId) {
   }
 }
 
+async function registerUser() {
+  if (await userCollection.countDocuments() > 0) {
+      return;
+  }
+  let email : string | undefined = process.env.ADMIN_EMAIL;
+  let password : string | undefined = process.env.ADMIN_PASSWORD;
+  if (email === undefined || password === undefined) {
+      throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set in environment");
+  }
+  await userCollection.insertOne({
+      username: email,
+      password: await bcrypt.hash(password, saltRounds),
+      role: "ADMIN",
+      id: 0,
+      _id: new ObjectId,
+      name: "",
+      expenses: [],
+      budget: {
+          monthlyLimit: 1000,
+          notificationThreshold: 0.9,
+          isActive: true,
+      },
+  });
+}
+
+export async function login(email: string, password: string) {
+  if (email === "" || password === "") {
+      throw new Error("Email and password required");
+  }
+  let user : User | null = await userCollection.findOne<User>({email: email});
+  if (user) {
+      if (await bcrypt.compare(password, user.password!)) {
+          return user;
+      } else {
+          throw new Error("Password incorrect");
+      }
+  } else {
+      throw new Error("User not found");
+  }
+}
 
 async function exit() {
   try {
@@ -142,6 +225,7 @@ async function exit() {
 export async function connect() {
   try {
       await client.connect();
+      await registerUser();
       console.log("Connected to database");
       process.on("SIGINT", exit);
   } catch (error) {

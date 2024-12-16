@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCurrentUser, getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection } from '../database';
+import { createUser,getExpenses, addExpenseForUser,checkBudgetNotification , addExpense, getFilteredExpenses, updateExpense, deleteExpense, userCollection, getUser } from '../database';
 import { Expense, PaymentMethod } from '../types';
 import { ObjectId } from 'mongodb';
 
@@ -7,9 +7,9 @@ export function createRouter() {
   const router = express.Router();
 
   router.get('/', async (req, res) => {
-    const user = await getCurrentUser();
-    res.render('index', { user });
+    res.render('index');
   });
+  
 
   router.get('/add-expense', async (req, res) => {
     const user = await getCurrentUser();
@@ -27,6 +27,8 @@ export function createRouter() {
     const user = await getCurrentUser();
     res.render('expenses', { expenses, user });
 });
+
+
 
   router.post('/add-expense', async (req, res) => {
     const { description, amount, currency, paymentMethod, category, tags, isIncoming, isPaid } = req.body;
@@ -126,5 +128,9 @@ export function createRouter() {
 });
 
 
+
+
   return router;
 }
+
+
