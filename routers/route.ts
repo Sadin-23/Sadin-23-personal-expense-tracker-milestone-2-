@@ -52,18 +52,30 @@ router.post("/register", async (req, res) => {
     res.redirect("/login");
 });
 
-  router.get('/', async (req, res) => {
-    res.render('index');
-  });
+router.get('/index', secureMiddleware, async (req, res) => {
+  const user = req.session.user;  // Haal de gebruiker uit de sessie
+
+  if (!user) {
+      // Als de gebruiker niet is ingelogd, redirect naar login
+      req.session.message = { type: "error", message: "You need to log in first" };
+      return res.redirect("/login");
+  }
+
+  // Render de homepagina of dashboard view
+  res.render('index', { user });
+});
+
   
 
   router.get('/add-expense', async (req, res) => {
     const user = await getCurrentUser();
+    
     res.render('add-expense', {user});
   });
 
   router.get("/expenses", secureMiddleware, async (req, res) => {
     const user = req.session.user;
+    console.log("User sessie:", user);
 
     if (!user) {
         req.session.message = { type: "error", message: "You must be logged in to view expenses" };
@@ -81,6 +93,7 @@ router.post("/register", async (req, res) => {
     const { description, amount, currency, paymentMethod, category, tags, isIncoming, isPaid } = req.body;
 
     const user = await getCurrentUser();
+    console.log("Huidige gebruiker:", user);
 
     let paymentMethodDetails: PaymentMethod = { method: paymentMethod };
 
@@ -106,9 +119,15 @@ router.post("/register", async (req, res) => {
       isPaid: isPaid === 'true',
     };
 
-    await addExpense(expense);
-        user.expenses.push(expense._id);
-        res.redirect('/expenses');
+    try {
+      await addExpense(expense);
+      user.expenses.push(expense._id);  // Voeg expense-id toe aan de gebruiker
+      res.redirect('/expenses');  // Redirect na het toevoegen van een expense
+  } catch (error) {
+      console.error("Fout bij het toevoegen van expense:", error);
+      req.session.message = { type: "error", message: "Er is iets mis gegaan bij het toevoegen van de uitgave" };
+      res.redirect("/add-expense");  // Redirect naar de add-expense pagina
+  }
   });
 
   router.get('/edit-expense/:id', async (req, res) => {

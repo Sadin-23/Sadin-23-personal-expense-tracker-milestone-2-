@@ -1,8 +1,8 @@
 <%- include("partials/header") %>
     <form action="/login" method="post">
         <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email"/>
+            <label for="username">Username:</label>
+            <input type="username" id="username" name="username"/>
         </div>
         <div class="form-group">
             <label for="password">Password:</label>
@@ -11,7 +11,12 @@
         <button type="submit">Login</button>
     </form>
 
+
+
     <% if (message) { %>
         <p class="<%= message.type %>"><%= message.message %></p>
     <% } %>
+    <form action="/register" method="post">
+        <button type="submit">Register</button>
+      </form>
 <%- include("partials/footer") %>

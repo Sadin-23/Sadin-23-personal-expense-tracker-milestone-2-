@@ -6,6 +6,7 @@ import { secureMiddleware,  } from './Middleware/secureMiddleware';
 import session from "./session";
 import { flashMiddleware } from './Middleware/flashMiddleware';
 import { connect } from './database';
+import { registrationRouter } from './routers/registratie';
 
 
 
@@ -20,10 +21,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+
 app.set("port", process.env.PORT || 3000);
 app.use('/', loginRouter());
 const router = createRouter(); 
 app.use('/', router);
+app.use('/', registrationRouter());
 
 app.use("/", secureMiddleware, );
 

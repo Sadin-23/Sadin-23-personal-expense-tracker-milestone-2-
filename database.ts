@@ -7,14 +7,22 @@ const saltRounds : number = 10;
 
 dotenv.config();
 
-export const MONGODB_URI = process.env.MONGODB_URI ?? "mongodb://localhost:27017";
+export const MONGODB_URI = process.env.MONGO_URI ?? "mongodb://localhost:27017";
 const client = new MongoClient(MONGODB_URI);
 
 export const userCollection: Collection<User> = client.db("expenseTracker").collection<User>("users");
 export const expenseCollection: Collection<Expense> = client.db("expenseTracker").collection<Expense>("expenses");
 
 
-
+async function exit() {
+  try {
+      await client.close();
+      console.log("Disconnected from database");
+  } catch (error) {
+      console.error(error);
+  }
+  process.exit(0);
+}
 
 // Gebruikers ophalen
 export async function getCurrentUser(): Promise<User> {
@@ -73,36 +81,11 @@ export async function deleteExpense(expenseId: ObjectId): Promise<void> {
   await expenseCollection.deleteOne({ _id: expenseId });
 }
 
-async function registerUser() {
-  if (await userCollection.countDocuments() > 0) {
-      return;
+export async function login(username: string, password: string) {
+  if (username === "" || password === "") {
+      throw new Error("username and password required");
   }
-  let email : string | undefined = process.env.ADMIN_EMAIL;
-  let password : string | undefined = process.env.ADMIN_PASSWORD;
-  if (email === undefined || password === undefined) {
-      throw new Error("Username and password must be set in environment");
-  }
-  await userCollection.insertOne({
-      username: email,
-      password: await bcrypt.hash(password, saltRounds),
-      role: "ADMIN",
-      id: 0,
-      _id: new ObjectId,
-      name: "",
-      expenses: [],
-      budget: {
-          monthlyLimit: 1000,
-          notificationThreshold: 0.9,
-          isActive: true,
-      },
-  });
-}
-
-export async function login(email: string, password: string) {
-  if (email === "" || password === "") {
-      throw new Error("Email and password required");
-  }
-  let user : User | null = await userCollection.findOne<User>({email: email});
+  let user : User | null = await userCollection.findOne<User>({username: username});
   if (user) {
       if (await bcrypt.compare(password, user.password!)) {
           return user;
@@ -114,20 +97,11 @@ export async function login(email: string, password: string) {
   }
 }
 
-async function exit() {
-  try {
-      await client.close();
-      console.log("Disconnected from database");
-  } catch (error) {
-      console.error(error);
-  }
-  process.exit(0);
-}
+
 
 export async function connect() {
   try {
       await client.connect();
-      await registerUser();
       console.log("Connected to database");
       process.on("SIGINT", exit);
   } catch (error) {

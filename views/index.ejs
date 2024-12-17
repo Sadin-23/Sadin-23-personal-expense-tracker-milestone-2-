@@ -1,15 +1,10 @@
 
   <%- include('partials/header') %>
 
-  <h1 id="expenses-header">Expenses for <%= user.name %></h1>
+  <h1 id="expenses-header">Expenses for <%= user.username %></h1>
   <ul id="expenses-list">
     <section>
-      <section>
-        <h2>Budget Informatie</h2>
-        <p>Maandelijks Budget: <%= user.budget.monthlyLimit %> EUR</p>
-        <p>Notificatiedrempel: <%= (user.budget.notificationThreshold * 100) %> %</p>
-        <p>Status van notificaties: <%= user.budget.isActive ? 'Actief' : 'Inactief' %></p>
-      </section>
+      
 
   </ul>
 
